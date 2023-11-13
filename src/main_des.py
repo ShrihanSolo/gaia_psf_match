@@ -14,7 +14,7 @@ import match
 # Global Parameters
 BAND = 'i'
 PSF_DATA_FILEPATH = "../../psf_data/psf_y3a1-v29.fits"
-RESULTS_FILEPATH = ""
+RESULTS_FILEPATH = "../results/"
 TOTAL_SUBSAMPLE_SIZE = 1000000
 CLUSTER_SUBSAMPLE_SIZE = 10000
 NUMBER_OF_CLUSTERS = 200
