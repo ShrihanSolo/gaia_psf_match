@@ -14,10 +14,10 @@ import match
 # Global Parameters
 BAND = 'i'
 PSF_DATA_FILEPATH = "../../psf_data/psf_y3a1-v29.fits"
-RESULTS_FILEPATH = "../results/"
+RESULTS_FILEPATH = "../results/iband/"
 TOTAL_SUBSAMPLE_SIZE = 10000
 CLUSTER_SUBSAMPLE_SIZE = 1000
-NUMBER_OF_CLUSTERS = 200
+NUMBER_OF_CLUSTERS = 300
 MATCH_LIM = 1 * u.arcsec
 INT_DATA_PATH = "../../int_data/idata/"
 

@@ -42,7 +42,7 @@ def perform_clustering(data, n_clusters, subsample_size):
         n_clusters: number of clusters to be found
         subsample_size: size of the subsample on which clustering is performed
     """    
-    
+    plt.figure()
     # Get 2D array of ra and dec from dataframe
     ra_dec = np.array([data['ra'], data['dec']]).T
     ridx = np.random.choice(np.arange(ra_dec.shape[0]), size = subsample_size, replace = False)
