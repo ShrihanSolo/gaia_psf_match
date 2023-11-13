@@ -10,35 +10,16 @@ from astroquery.gaia import Gaia
 import os 
 
 
-def read_des_fits(file_path, band, n = int(1e6)):
+
+def plot_sanity_test(coord, fold, BAND, n = 10000):
     """
-    Read in the DES fits file and return a pandas dataframe with ra, dec, mag and band columns.
-    Args: 
-        file_path: path to the fits file
-        band: band to be read in
-        n: subsample of stars to be read in within specified band
-    Returns:
-        des: pandas dataframe with ra, dec, mag and band columns
+    Plot a sanity check of the location of psf stars.
+    Args:
+        coord: pandas dataframe of ra and dec
+        fold: folder to save the plot
+        n: number of randomly sampled stars to be plotted
     """
     
-    # Read in the fits file and close it
-    hdul = fits.open(file_path)
-    
-    # hdul[1].data is a numpy recarray. Get the ra, dec, mag and band columns   
-    cols = ['ra', 'dec', 'mag', 'band']
-    zidx = np.random.choice(np.where(hdul[1].data['band'] == band)[0], size = n, replace = False)
-    data = {col: hdul[1].data[col][zidx] for col in cols}
-    hdul.close()
-
-    des = pd.DataFrame(data)
-    
-
-    # Combine ra and dec into a sky coord array
-    des['coord'] = SkyCoord(ra=des['ra'], dec=des['dec'], unit = 'deg')
-    return des
-
-
-def plot_sanity_test(coord, n = 10000):
     plt.figure(figsize=(8,4.2))
     plt.subplot(111, projection="aitoff")
     plt.title("Sanity Test: PSF Stars in Surveys")
@@ -50,10 +31,40 @@ def plot_sanity_test(coord, n = 10000):
     ra_rad = np.array([c.ra.wrap_at(180 * u.deg).radian for c in coord])
     dec_rad = np.array([c.dec.radian for c in coord])
     plt.scatter(ra_rad, dec_rad, s=0.1, alpha=0.8)
-    plt.show()
+    plt.savefig(fold + f"/sanity_test_{BAND}_DES.png", dpi = 300)
+    return
     
+def perform_clustering(data, n_clusters, subsample_size):
+    """
+    Perform clustering on the dataset.
+    Args:
+        data: pandas dataframe of ra, dec, mag and band
+        n_clusters: number of clusters to be found
+        subsample_size: size of the subsample on which clustering is performed
+    """    
+    
+    # Get 2D array of ra and dec from dataframe
+    ra_dec = np.array([data['ra'], data['dec']]).T
+    ridx = np.random.choice(np.arange(ra_dec.shape[0]), size = subsample_size, replace = False)
+    ra_dec_sample = ra_dec[ridx]
 
-def plot_cluster_test(ra_dec, centroids, cluster_num_array):
+    # Perform clustering on subsample
+    cents = kmeans(ra_dec_sample, n_clusters)
+    print("Centroids found.")
+    centroids = cents[0]
+    cluster_num_array = vq(ra_dec, centroids)
+    print("Stars clustered.")
+
+    # Generate cluster info df
+    max_dist_pts = {i:[np.array([k for k in cluster_num_array[1][cluster_num_array[0] == i]]).max()] for i in range(n_clusters)}
+    cluster_info = pd.DataFrame(max_dist_pts).T
+    cluster_info.columns = ["max_dist"]
+    cluster_info["clusterno"] = cluster_info.index
+    cluster_info["centroids"] = list(centroids)
+    
+    return ra_dec, centroids, cluster_info, cluster_num_array
+
+def plot_cluster_test(ra_dec, centroids, cluster_num_array, fold, BAND):
     """
     Plot the K-Means cluster test results, with clusters.
     Args:
@@ -82,15 +93,17 @@ def plot_cluster_test(ra_dec, centroids, cluster_num_array):
     plt.title("Sanity Clustering Test")
     plt.xlabel("RA")
     plt.ylabel("Dec")
+    plt.savefig(fold + f"/cluster_test_{BAND}_DES.png", dpi = 300)
+    return
 
-
-def sanity_separation_test(master_comb_df):
+def sanity_separation_test(master_comb_df, fold, BAND):
     plt.hist(master_comb_df["sep2d"], bins = np.logspace(-5, 3))
     plt.semilogx()
     plt.axvline(1, color = "k")
     plt.ylabel("Counts")
     plt.xlabel("Separation from Best Match (arcsec)")
     plt.title("Matched Stars: Separation in Arcsec")
+    plt.savefig(fold + f"/separation_test_{BAND}_DES.png", dpi = 300)
     return
 
 def sanity_crossmatch_test(master_comb_df, i = 0):
@@ -133,6 +146,15 @@ def sanity_crossmatch_test(master_comb_df, i = 0):
     ax[1].set_title("Post-Matching, Sample Region")
     
     return fig, ax
+
+def concatenate_int_data(fold):
+    files = os.listdir(fold)
+    df_list = []
+    for file in files:
+        if '.csv' in file:
+            df_list.append(pd.read_csv(fold + file, index_col=0))
+            master_comb_df = pd.concat(df_list)
+    return master_comb_df
 
 
 def query_gaia_for_cluster(ra, dec, dist, lim = 1e6, verbose = False):
@@ -222,7 +244,7 @@ def match_cluster_to_gaia(cluster_num_array, ra_dec, cluster_info, cluster_num, 
     return comb_stars
 
 
-def plot_match_completeness(master_comb_df, bounds = [15, 21]):
+def plot_match_completeness(master_comb_df, fold, BAND, bounds = [15, 21]):
     """
     Plot the magnitude distribution of the matched stars, and the matched stars that are also Gaia QSO and Galaxy candidates.
     Args:
@@ -253,7 +275,7 @@ def concatenate_int_data(fold):
         master_comb_df = pd.concat(df_list)
     return master_comb_df
 
-def galaxy_ratio_plot(master_comb_df, bounds = [15, 21], w = 0.1):
+def galaxy_ratio_plot(master_comb_df, fold, BAND, bounds = [15, 21], w = 0.1):
     """
     Plot the ratio of Gaia galaxies to first: all matched PSFs, and second to all PSFs.
     Args:
@@ -275,7 +297,7 @@ def galaxy_ratio_plot(master_comb_df, bounds = [15, 21], w = 0.1):
     plt.xlabel("Z-Band Magnitude")
     plt.ylabel("Fraction of DESY3 Stars")
     plt.legend()
-    plt.show()
+    plt.savefig(fold + f"/galaxy_ratio_matched_{BAND}_DES.png", dpi = 300)
 
     plt.bar(mid(failed_star_galaxy_cut[1]), failed_star_galaxy_cut[0] / all_match[0], label = "Fraction Matched Failing Star-Galaxy Cut",color = "orange", width=0.14)
     plt.bar(mid(galaxy_match[1]), galaxy_match[0] / all_match[0], label = "Fraction Matched Gaia Galaxy Candidates",color = "green", width=0.14)
@@ -283,4 +305,5 @@ def galaxy_ratio_plot(master_comb_df, bounds = [15, 21], w = 0.1):
     plt.legend()
     plt.xlabel("Z-Band Magnitude")
     plt.ylabel("Fraction of DESY3 Stars")
+    plt.savefig(fold + f"/galaxy_ratio_all_{BAND}_DES.png", dpi = 300)
     return 
