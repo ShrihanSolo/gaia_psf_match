@@ -17,7 +17,7 @@ PSF_DATA_FILEPATH = "../../psf_data/psf_y3a1-v29.fits"
 RESULTS_FILEPATH = "../results/"
 TOTAL_SUBSAMPLE_SIZE = 10000
 CLUSTER_SUBSAMPLE_SIZE = 1000
-NUMBER_OF_CLUSTERS = 10
+NUMBER_OF_CLUSTERS = 200
 MATCH_LIM = 1 * u.arcsec
 INT_DATA_PATH = "../../int_data/idata/"
 
@@ -66,7 +66,7 @@ match.plot_cluster_test(ra_dec, centroids, cluster_num_array, fold = RESULTS_FIL
 # Match Gaia for stars in the clusters 
 for i in range(NUMBER_OF_CLUSTERS):
     print("Cluster " + str(i) + ":", end = ' ')
-    comb_clusteri = match.match_cluster_to_gaia(cluster_num_array, ra_dec, cluster_info, i)
+    comb_clusteri = match.match_cluster_to_gaia(des, cluster_num_array, ra_dec, cluster_info, i)
     print("Matched.")
     comb_clusteri.to_csv(INT_DATA_PATH + "cluster_" + str(BAND) + "_" + str(i) + ".csv")
 

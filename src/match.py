@@ -200,7 +200,7 @@ def query_gaia_for_cluster(ra, dec, dist, lim = 1e6, verbose = False):
     return gaia_table
 
 
-def match_cluster_to_gaia(cluster_num_array, ra_dec, cluster_info, cluster_num, MATCH_LIM = 1 * u.arcsec):
+def match_cluster_to_gaia(data, cluster_num_array, ra_dec, cluster_info, cluster_num, MATCH_LIM = 1 * u.arcsec):
     """
     Match stars in cluster 'cluster_num' to gaia stars. Create a table with gaia coords, cluster coords, and flag for matched stars.
     Args:
@@ -219,7 +219,7 @@ def match_cluster_to_gaia(cluster_num_array, ra_dec, cluster_info, cluster_num, 
     print("Queried.", end = ' ')
     
     cluster0 = SkyCoord(ra_dec[cluster_num_array[0] == cluster_num] * u.deg)
-    mag0 = np.array(des['mag'][cluster_num_array[0] == cluster_num])
+    mag0 = np.array(data['mag'][cluster_num_array[0] == cluster_num])
     gaia0 = SkyCoord(ra = gaia0_tab['ra'], dec = gaia0_tab['dec'], unit=u.deg)
     idx_clust, sep2d_clust, _ = cluster0.match_to_catalog_sky(gaia0)
     
@@ -251,7 +251,7 @@ def plot_match_completeness(master_comb_df, fold, BAND, bounds = [15, 21]):
         master_comb_df: Pandas dataframe of matched stars.
         bounds: bounds of the magnitude distribution to be plotted.
     """
-
+    plt.figure()
     match_idx = (master_comb_df["matched"] == 1)
     super_match_idx = (master_comb_df[match_idx]["non_single_star"] == 0) & (master_comb_df[match_idx]["in_galaxy_candidates"] == False)
     plt.hist(master_comb_df["mag0"], bins = np.linspace(bounds[0], bounds[1], 40), label = "All PSF Stars", alpha = 0.5, color = "purple")
@@ -285,12 +285,17 @@ def galaxy_ratio_plot(master_comb_df, fold, BAND, bounds = [15, 21], w = 0.1):
     """
     # Define the bins
     bins = np.linspace(bounds[0], bounds[1], 40)
+    
+    # Get data
+    plt.figure()
+    match_idx = (master_comb_df["matched"] == 1)
     all_match = np.histogram(master_comb_df["mag0"][match_idx], bins = bins)
     galaxy_match = np.histogram(master_comb_df["mag0"][match_idx][master_comb_df[match_idx]["in_galaxy_candidates"] == True], bins = bins)
     failed_star_galaxy_cut = np.histogram(master_comb_df["mag0"][match_idx][master_comb_df[match_idx]["is_star"] == False], bins = bins)
 
     mid = lambda x: x[:-1] + np.diff(x)/2
 
+    plt.figure()
     plt.bar(mid(failed_star_galaxy_cut[1]), failed_star_galaxy_cut[0] / all_match[0], label = "Fraction Matched Failing Star-Galaxy Cut",color = "orange", width=0.14)
     plt.bar(mid(galaxy_match[1]), galaxy_match[0] / all_match[0], label = "Fraction Matched Gaia Galaxy Candidates",color = "green", width=0.14)
     plt.title("Ratio of Non-Star Matches to All Gaia Matched Objects")
@@ -299,6 +304,7 @@ def galaxy_ratio_plot(master_comb_df, fold, BAND, bounds = [15, 21], w = 0.1):
     plt.legend()
     plt.savefig(fold + f"/galaxy_ratio_matched_{BAND}_DES.png", dpi = 300)
 
+    plt.figure()
     plt.bar(mid(failed_star_galaxy_cut[1]), failed_star_galaxy_cut[0] / all_match[0], label = "Fraction Matched Failing Star-Galaxy Cut",color = "orange", width=0.14)
     plt.bar(mid(galaxy_match[1]), galaxy_match[0] / all_match[0], label = "Fraction Matched Gaia Galaxy Candidates",color = "green", width=0.14)
     plt.title("Ratio of Gaia Non-Star Matches to All PSF Stars")
