@@ -31,7 +31,7 @@ def plot_sanity_test(coord, fold, BAND, n = 10000):
     ra_rad = np.array([c.ra.wrap_at(180 * u.deg).radian for c in coord])
     dec_rad = np.array([c.dec.radian for c in coord])
     plt.scatter(ra_rad, dec_rad, s=0.1, alpha=0.8)
-    plt.savefig(fold + f"/sanity_test_{BAND}_DES.png", dpi = 300)
+    plt.savefig(fold + f"sanity_test_{BAND}_DES.png", dpi = 300)
     return
     
 def perform_clustering(data, n_clusters, subsample_size):

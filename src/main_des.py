@@ -15,9 +15,9 @@ import match
 BAND = 'i'
 PSF_DATA_FILEPATH = "../../psf_data/psf_y3a1-v29.fits"
 RESULTS_FILEPATH = "../results/"
-TOTAL_SUBSAMPLE_SIZE = 1000000
-CLUSTER_SUBSAMPLE_SIZE = 10000
-NUMBER_OF_CLUSTERS = 200
+TOTAL_SUBSAMPLE_SIZE = 10000
+CLUSTER_SUBSAMPLE_SIZE = 1000
+NUMBER_OF_CLUSTERS = 10
 MATCH_LIM = 1 * u.arcsec
 INT_DATA_PATH = "../../int_data/idata/"
 
@@ -48,8 +48,11 @@ def read_des_fits(file_path, band, n = int(1e6)):
     des['coord'] = SkyCoord(ra=des['ra'], dec=des['dec'], unit = 'deg')
     return des
 
+print("Starting DES Gaia Crossmatch for Band " + str(BAND) + ".")
+
 # Read in DES Data
 des = read_des_fits(PSF_DATA_FILEPATH, BAND, n = TOTAL_SUBSAMPLE_SIZE)
+print("Data read in.")
 
 # Plot location of subsample of PSF stars
 match.plot_sanity_test(des['coord'], fold = RESULTS_FILEPATH, BAND = BAND)
@@ -58,7 +61,7 @@ match.plot_sanity_test(des['coord'], fold = RESULTS_FILEPATH, BAND = BAND)
 ra_dec, centroids, cluster_info, cluster_num_array = match.perform_clustering(des, NUMBER_OF_CLUSTERS, CLUSTER_SUBSAMPLE_SIZE)
 
 # Plot the clusters with color
-match.plot_cluster_test(ra_dec, centroids, cluster_num_array, fold = PLOT_FILERESULTS_FILEPATHPATH, BAND = BAND)
+match.plot_cluster_test(ra_dec, centroids, cluster_num_array, fold = RESULTS_FILEPATH, BAND = BAND)
 
 # Match Gaia for stars in the clusters 
 for i in range(NUMBER_OF_CLUSTERS):
