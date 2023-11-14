@@ -185,7 +185,7 @@ def query_gaia_for_cluster(ra, dec, dist, lim = 1e6, verbose = False):
     query = Q.format(ra=ra,dec=dec,radius=search_radius.value, limit = int(lim))
     if verbose:
         print(query)
-    job = Gaia.launch_job(query, dump_to_file=True)
+    job = Gaia.launch_job_async(query, dump_to_file=True)
     result_table = job.get_results()
     gaia_table = result_table.to_pandas()
     
