@@ -1,0 +1,12 @@
+Starting DES Gaia Crossmatch for Band i.
+Data read in.
+Centroids found.
+Stars clustered.
+Cluster 0: R = 2.985 | 
+    select top 1000000 ra, dec, phot_g_mean_mag, in_qso_candidates, in_galaxy_candidates, non_single_star, astrometric_excess_noise
+    FROM gaiadr3.gaia_source
+    WHERE 1 = CONTAINS(
+    POINT(326.355889968802, 0.4220075711785083),
+    CIRCLE(ra, dec, 2.984999425634802))
+    order by source_id
+    

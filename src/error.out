@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "/home/shrihan/weaklens/gaia_match_psf/gaia_match_psf_code/src/main_des.py", line 69, in <module>
+    comb_clusteri = match.match_cluster_to_gaia(des, cluster_num_array, ra_dec, cluster_info, i)
+  File "/home/shrihan/weaklens/gaia_match_psf/gaia_match_psf_code/src/match.py", line 217, in match_cluster_to_gaia
+    gaia0_tab = query_gaia_for_cluster(clust0_info["centroids"][0], 
+  File "/home/shrihan/weaklens/gaia_match_psf/gaia_match_psf_code/src/match.py", line 188, in query_gaia_for_cluster
+    job = Gaia.launch_job_async(query, dump_to_file=True)
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/site-packages/astroquery/gaia/core.py", line 903, in launch_job_async
+    return TapPlus.launch_job_async(self, query=query,
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/site-packages/astroquery/utils/tap/core.py", line 409, in launch_job_async
+    response = self.__launchJob(query,
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/site-packages/astroquery/utils/tap/core.py", line 625, in __launchJob
+    response = self.__connHandler.execute_tappost(subcontext=context,
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/site-packages/astroquery/utils/tap/conn/tapconn.py", line 273, in execute_tappost
+    return self.__execute_post(context, data, content_type, verbose)
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/site-packages/astroquery/utils/tap/conn/tapconn.py", line 426, in __execute_post
+    conn.request("POST", context, data, self.__postHeaders)
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/http/client.py", line 1448, in connect
+    super().connect()
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/http/client.py", line 942, in connect
+    self.sock = self._create_connection(
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/socket.py", line 845, in create_connection
+    raise err
+  File "/home/shrihan/.conda/envs/weaklens2/lib/python3.10/socket.py", line 833, in create_connection
+    sock.connect(sa)
+TimeoutError: [Errno 110] Connection timed out

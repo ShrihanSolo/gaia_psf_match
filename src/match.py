@@ -52,17 +52,32 @@ def perform_clustering(data, n_clusters, subsample_size):
     cents = kmeans(ra_dec_sample, n_clusters)
     print("Centroids found.")
     centroids = cents[0]
+    
+    return centroids
+
+def get_assignments(data, centroids):
+    """
+    Get the cluster assignments for the full dataset.
+    Args:
+        data: pandas dataframe of ra, dec, mag and band
+        centroids: numpy array of centroid positions 
+    """
+    
+    # Get 2D array of ra and dec from dataframe
+    ra_dec = np.array([data['ra'], data['dec']]).T
+    
+    # Get cluster assignments for full dataset
     cluster_num_array = vq(ra_dec, centroids)
     print("Stars clustered.")
-
+    
     # Generate cluster info df
-    max_dist_pts = {i:[np.array([k for k in cluster_num_array[1][cluster_num_array[0] == i]]).max()] for i in range(n_clusters)}
+    max_dist_pts = {i:[np.array([k for k in cluster_num_array[1][cluster_num_array[0] == i]]).max()] for i in range(centroids.shape[0])}
     cluster_info = pd.DataFrame(max_dist_pts).T
     cluster_info.columns = ["max_dist"]
     cluster_info["clusterno"] = cluster_info.index
     cluster_info["centroids"] = list(centroids)
     
-    return ra_dec, centroids, cluster_info, cluster_num_array
+    return cluster_num_array, cluster_info
 
 def plot_cluster_test(ra_dec, centroids, cluster_num_array, fold, BAND):
     """
@@ -214,7 +229,10 @@ def match_cluster_to_gaia(data, cluster_num_array, ra_dec, cluster_info, cluster
     # Query gaia and match stars to cluster    
     clust0_info = cluster_info.loc[cluster_num]
     print("R = {:.3f}".format(clust0_info["max_dist"]), end = ' | ')
-    gaia0_tab = query_gaia_for_cluster(clust0_info["centroids"][0], clust0_info["centroids"][1], clust0_info["max_dist"])
+    gaia0_tab = query_gaia_for_cluster(clust0_info["centroids"][0], 
+                                       clust0_info["centroids"][1], 
+                                       clust0_info["max_dist"],
+                                       verbose=True)
     
     print("Queried.", end = ' ')
     
