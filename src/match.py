@@ -71,8 +71,13 @@ def get_assignments(data, centroids):
     print("Stars clustered.")
     
     # Generate cluster info df
-    max_dist_pts = {i:[np.array([k for k in cluster_num_array[1][cluster_num_array[0] == i]]).max()] for i in range(centroids.shape[0])}
-    cluster_info = pd.DataFrame(max_dist_pts).T
+    max_dist_pts = {}
+    num = centroids.shape[0]
+    for i in range(num):
+        disti = np.array([k for k in cluster_num_array[1][cluster_num_array[0] == i]])
+        max_dist_pts[i] = disti.max()
+    
+    cluster_info = pd.DataFrame(max_dist_pts, index=[0]).T
     cluster_info.columns = ["max_dist"]
     cluster_info["clusterno"] = cluster_info.index
     cluster_info["centroids"] = list(centroids)

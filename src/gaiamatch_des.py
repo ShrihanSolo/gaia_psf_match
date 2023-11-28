@@ -11,13 +11,14 @@ import os
 
 import match
 
-# Choose a band for the clustering to be based on - 'g', 'r', 'i', 'z', 'y'
+# Global Parameters
 BAND = 'i'
-
 PSF_DATA_FILEPATH = "../../psf_data/psf_y3a1-v29.fits"
 RESULTS_FILEPATH = "../results/"
-CLUSTER_SUBSAMPLE_SIZE = 10000
-NUMBER_OF_CLUSTERS = 300
+TOTAL_SUBSAMPLE_SIZE = 10000
+CLUSTER_SUBSAMPLE_SIZE = 1000
+NUMBER_OF_CLUSTERS = 200
+MATCH_LIM = 1 * u.arcsec
 INT_DATA_PATH = "../../int_data/"
 
 def read_des_fits(file_path, band, n = int(1e6)):
@@ -49,15 +50,35 @@ def read_des_fits(file_path, band, n = int(1e6)):
 
 print("Starting DES Gaia Crossmatch for Band " + str(BAND) + ".")
 
+# Alter results filepath to include band
+RESULTS_FILEPATH_BAND = RESULTS_FILEPATH + str(BAND) + "band" + "/"
+INT_DATA_PATH_BAND = INT_DATA_PATH + str(BAND) + "band" + "/"
+
 # Read in DES Data
-des = read_des_fits(PSF_DATA_FILEPATH, BAND, n = CLUSTER_SUBSAMPLE_SIZE)
+des = read_des_fits(PSF_DATA_FILEPATH, BAND, n = TOTAL_SUBSAMPLE_SIZE)
 print("Data read in.")
 
-# Plot location of subsample of PSF stars
-match.plot_sanity_test(des['coord'], fold = RESULTS_FILEPATH, BAND = BAND)
+# Get cluster assignments of cluster subsample
+cluster_num_array, cluster_info = match.get_assignments(data, centroids)
 
-# Perform clustering on subsample of PSF stars
-centroids = match.perform_clustering(des, NUMBER_OF_CLUSTERS, CLUSTER_SUBSAMPLE_SIZE)
+# Plot the clusters with color
+match.plot_cluster_test(ra_dec, centroids, cluster_num_array, fold = RESULTS_FILEPATH, BAND = BAND)
 
-# Save centroids array to int_data
-np.save(INT_DATA_PATH + "centroids.npy", centroids)
+# Match Gaia for stars in the clusters 
+for i in range(NUMBER_OF_CLUSTERS):
+    print("Cluster " + str(i) + ":", end = ' ')
+    comb_clusteri = match.match_cluster_to_gaia(des, cluster_num_array, ra_dec, cluster_info, i)
+    print("Matched.")
+    comb_clusteri.to_csv(INT_DATA_PATH + "cluster_" + str(BAND) + "_" + str(i) + ".csv")
+
+# Concatenate all the clusters
+master_comb_df = match.concatenate_int_data(INT_DATA_PATH)
+master_comb_df.to_csv(RESULTS_FILEPATH + "DES_MATCH_BAND" + str(BAND) + ".csv")
+print("Concatenated Master DF.")
+
+# Plot matching tests and results
+match.sanity_separation_test(master_comb_df, fold = PLOT_FILEPATH, BAND = BAND)
+match.plot_match_completeness(master_comb_df, fold = PLOT_FILEPATH, BAND = BAND)
+match.galaxy_ratio_plot(master_comb_df, fold = PLOT_FILEPATH, BAND = BAND)
+print("Plotting Complete.")
+

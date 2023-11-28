@@ -15,9 +15,7 @@ import match
 BAND = 'i'
 PSF_DATA_FILEPATH = "../../psf_data/psf_y3a1-v29.fits"
 RESULTS_FILEPATH = "../results/"
-TOTAL_SUBSAMPLE_SIZE = 10000
-CLUSTER_SUBSAMPLE_SIZE = 1000
-NUMBER_OF_CLUSTERS = 200
+TOTAL_SUBSAMPLE_SIZE = 1000000
 MATCH_LIM = 1 * u.arcsec
 INT_DATA_PATH = "../../int_data/"
 
@@ -50,38 +48,29 @@ def read_des_fits(file_path, band, n = int(1e6)):
 
 print("Starting DES Gaia Crossmatch for Band " + str(BAND) + ".")
 
-# Alter results filepath to include band
-RESULTS_FILEPATH = RESULTS_FILEPATH + str(BAND) + "band" + "/"
-INT_DATA_PATH = INT_DATA_PATH + str(BAND) + "data" + "/"
-
 # Read in DES Data
 des = read_des_fits(PSF_DATA_FILEPATH, BAND, n = TOTAL_SUBSAMPLE_SIZE)
 print("Data read in.")
 
-# Plot location of subsample of PSF stars
-match.plot_sanity_test(des['coord'], fold = RESULTS_FILEPATH, BAND = BAND)
+# Save des subsample in int_data/des
+des.to_csv(INT_DATA_PATH + "des/" + "des_" + str(BAND) + ".csv")
 
-# Perform clustering on subsample of PSF stars, use on full sample
-ra_dec, centroids, cluster_info, cluster_num_array = match.perform_clustering(des, NUMBER_OF_CLUSTERS, CLUSTER_SUBSAMPLE_SIZE)
+# Load centroids array from int_data
+centroids = np.load(INT_DATA_PATH + "centroids.npy")
 
-# Plot the clusters with color
-match.plot_cluster_test(ra_dec, centroids, cluster_num_array, fold = RESULTS_FILEPATH, BAND = BAND)
+# Get assignments for all stars in DES
+cluster_num_array, cluster_info = match.get_assignments(des, centroids)
 
-# Match Gaia for stars in the clusters 
-for i in range(NUMBER_OF_CLUSTERS):
-    print("Cluster " + str(i) + ":", end = ' ')
-    comb_clusteri = match.match_cluster_to_gaia(des, cluster_num_array, ra_dec, cluster_info, i)
-    print("Matched.")
-    comb_clusteri.to_csv(INT_DATA_PATH + "cluster_" + str(BAND) + "_" + str(i) + ".csv")
-
-# Concatenate all the clusters
-master_comb_df = match.concatenate_int_data(INT_DATA_PATH)
-master_comb_df.to_csv(RESULTS_FILEPATH + "DES_MATCH_BAND" + str(BAND) + ".csv")
-print("Concatenated Master DF.")
-
-# Plot matching tests and results
-match.sanity_separation_test(master_comb_df, fold = PLOT_FILEPATH, BAND = BAND)
-match.plot_match_completeness(master_comb_df, fold = PLOT_FILEPATH, BAND = BAND)
-match.galaxy_ratio_plot(master_comb_df, fold = PLOT_FILEPATH, BAND = BAND)
-print("Plotting Complete.")
-
+# Query Gaia for each cluster
+for cluster_num in range(centroids.shape[0]):
+    clust0_info = cluster_info.loc[cluster_num]
+    print("R = {:.3f}".format(clust0_info["max_dist"]), end = ' | ')
+    gaia0_tab = match.query_gaia_for_cluster(clust0_info["centroids"][0], 
+                                       clust0_info["centroids"][1], 
+                                       clust0_info["max_dist"],
+                                       verbose=False)
+    print("Queried.", end = ' ')
+    
+    # Save the gaia table in int_data
+    gaia0_tab.to_feather(INT_DATA_PATH + "gaia/" + "gaia" + str(cluster_num) + ".feather")
+    print("Saved.")
