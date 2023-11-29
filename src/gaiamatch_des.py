@@ -16,8 +16,6 @@ BAND = 'i'
 PSF_DATA_FILEPATH = "../../psf_data/psf_y3a1-v29.fits"
 RESULTS_FILEPATH = "../results/"
 TOTAL_SUBSAMPLE_SIZE = 10000
-CLUSTER_SUBSAMPLE_SIZE = 1000
-NUMBER_OF_CLUSTERS = 200
 MATCH_LIM = 1 * u.arcsec
 INT_DATA_PATH = "../../int_data/"
 
@@ -58,18 +56,21 @@ INT_DATA_PATH_BAND = INT_DATA_PATH + str(BAND) + "band" + "/"
 des = read_des_fits(PSF_DATA_FILEPATH, BAND, n = TOTAL_SUBSAMPLE_SIZE)
 print("Data read in.")
 
-# Get cluster assignments of cluster subsample
-cluster_num_array, cluster_info = match.get_assignments(data, centroids)
+# Load centroids array from int_data
+centroids = np.load(INT_DATA_PATH + "centroids.npy")
 
-# Plot the clusters with color
-match.plot_cluster_test(ra_dec, centroids, cluster_num_array, fold = RESULTS_FILEPATH, BAND = BAND)
+# Get assignments for all stars in DES
+cluster_num_array, cluster_info = match.get_assignments(des, centroids)
+print("DES Stars Assigned.")
 
 # Match Gaia for stars in the clusters 
-for i in range(NUMBER_OF_CLUSTERS):
+for i in range(centroids.shape[0]):
     print("Cluster " + str(i) + ":", end = ' ')
-    comb_clusteri = match.match_cluster_to_gaia(des, cluster_num_array, ra_dec, cluster_info, i)
+    gaia0_tab = pd.read_feather(INT_DATA_PATH + "gaia/" + "gaia" + str(i) + ".feather")
+    comb_clusteri = match.match_cluster_to_gaia(gaia0_tab, des, cluster_num_array, cluster_info, i)
     print("Matched.")
-    comb_clusteri.to_csv(INT_DATA_PATH + "cluster_" + str(BAND) + "_" + str(i) + ".csv")
+    comb_clusteri.to_csv(INT_DATA_PATH + str(BAND) + "data/" + "cluster_" + str(BAND) + "_" + str(i) + ".csv")
+    
 
 # Concatenate all the clusters
 master_comb_df = match.concatenate_int_data(INT_DATA_PATH)
