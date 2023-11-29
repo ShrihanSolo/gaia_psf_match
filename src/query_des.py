@@ -54,15 +54,26 @@ print("Data read in.")
 
 # Save des subsample in int_data/des
 des.to_csv(INT_DATA_PATH + "des/" + "des_" + str(BAND) + ".csv")
+print("Subsample saved.")
 
 # Load centroids array from int_data
 centroids = np.load(INT_DATA_PATH + "centroids.npy")
 
 # Get assignments for all stars in DES
 cluster_num_array, cluster_info = match.get_assignments(des, centroids)
+print("DES Stars Assigned.")
+
+# Save cluster_num_array and cluster_info in int_data
+np.save(INT_DATA_PATH + "cluster_num_array" + str(BAND) + ".npy", cluster_num_array)
+cluster_info.to_csv(INT_DATA_PATH + "cluster_info.csv")
+
+# Plot the clusters with color
+ra_dec = np.array([des['ra'], des['dec']]).T
+match.plot_cluster_test(ra_dec, centroids, cluster_num_array, fold = RESULTS_FILEPATH, BAND = BAND)
 
 # Query Gaia for each cluster
-for cluster_num in range(centroids.shape[0]):
+# for cluster_num in range(centroids.shape[0]):
+for cluster_num in [88, 166]:
     clust0_info = cluster_info.loc[cluster_num]
     print("R = {:.3f}".format(clust0_info["max_dist"]), end = ' | ')
     gaia0_tab = match.query_gaia_for_cluster(clust0_info["centroids"][0], 

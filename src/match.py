@@ -214,33 +214,26 @@ def query_gaia_for_cluster(ra, dec, dist, lim = 1e6, verbose = False):
     gaia_table["is_star"] = (np.log10(np.maximum(gaia_table['astrometric_excess_noise'], 1e-12)) < np.maximum((gaia_table['phot_g_mean_mag']-18.2)*.3+.2,.3))
     gaia_table.drop(columns=['astrometric_excess_noise', 'phot_g_mean_mag'], inplace=True)
     
-    if len(gaia_table) == lim:
+    if len(gaia_table) >= lim:
         print(f"Warning: Limit of {lim} reached. Increase limit or decrease radius (increase number of clusters).")
-    
+        if lim >= 1e8:
+            raise Exception("Tried limit of 100000000 (1e8). Maximum limit allowed.")
+        print(f"Warning: Retrying query with larger limit. May face timeout/memory limit.")
+        return query_gaia_for_cluster(ra, dec, dist, lim = 10 * lim, verbose = verbose)
     return gaia_table
 
 
-def match_cluster_to_gaia(data, cluster_num_array, ra_dec, cluster_info, cluster_num, MATCH_LIM = 1 * u.arcsec):
+def match_cluster_to_gaia(gaia0_tab, data, cluster_num_array, cluster_info, cluster_num, MATCH_LIM = 1 * u.arcsec):
     """
     Match stars in cluster 'cluster_num' to gaia stars. Create a table with gaia coords, cluster coords, and flag for matched stars.
     Args:
         cluster_num_array: numpy array of cluster assignment, distance to centroid for each star 
-        ra_dec: numpy array of ra and dec (2, n)
         cluster_info: pandas dataframe with cluster-specific info -> clusterno, centroids, max_dist.
         cluster_num: cluster number to be matched
         MATCH_LIM: maximum separation between a cluster star and a gaia star to be considered a match
     """
     
-    # Query gaia and match stars to cluster    
-    clust0_info = cluster_info.loc[cluster_num]
-    print("R = {:.3f}".format(clust0_info["max_dist"]), end = ' | ')
-    gaia0_tab = query_gaia_for_cluster(clust0_info["centroids"][0], 
-                                       clust0_info["centroids"][1], 
-                                       clust0_info["max_dist"],
-                                       verbose=True)
-    
-    print("Queried.", end = ' ')
-    
+    ra_dec = np.array([data['ra'], data['dec']]).T
     cluster0 = SkyCoord(ra_dec[cluster_num_array[0] == cluster_num] * u.deg)
     mag0 = np.array(data['mag'][cluster_num_array[0] == cluster_num])
     gaia0 = SkyCoord(ra = gaia0_tab['ra'], dec = gaia0_tab['dec'], unit=u.deg)
