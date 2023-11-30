@@ -4,11 +4,10 @@
 #SBATCH --job-name=gaia_psf_match
 #SBATCH --partition=caslake
 #SBATCH --account=pi-chihway
-#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=12
-#SBATCH --time=1:00:00
-#SBATCH --output=results.out
-#SBATCH --error=error.out
+#SBATCH --time=3:00:00
+#SBATCH --output=results_y.out
+#SBATCH --error=error_y.out
 #SBATCH --mail-type=BEGIN,END
 #SBATCH --mail-user=shrihan@uchicago.edu
 

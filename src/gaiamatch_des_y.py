@@ -12,10 +12,10 @@ import os
 import match
 
 # Global Parameters
-BAND = 'y'
+BAND = 'Y'
 PSF_DATA_FILEPATH = "../../psf_data/psf_y3a1-v29.fits"
 RESULTS_FILEPATH = "../results/"
-TOTAL_SUBSAMPLE_SIZE = 10000
+TOTAL_SUBSAMPLE_SIZE = 1000000
 MATCH_LIM = 1 * u.arcsec
 INT_DATA_PATH = "../../int_data/"
 
@@ -50,7 +50,7 @@ print("Starting DES Gaia Crossmatch for Band " + str(BAND) + ".")
 
 # Alter results filepath to include band
 RESULTS_FILEPATH_BAND = RESULTS_FILEPATH + str(BAND) + "band" + "/"
-INT_DATA_PATH_BAND = INT_DATA_PATH + str(BAND) + "band" + "/"
+INT_DATA_PATH_BAND = INT_DATA_PATH + str(BAND) + "data" + "/"
 
 # Read in DES Data
 des = read_des_fits(PSF_DATA_FILEPATH, BAND, n = TOTAL_SUBSAMPLE_SIZE)
@@ -73,13 +73,13 @@ for i in range(centroids.shape[0]):
     
 
 # Concatenate all the clusters
-master_comb_df = match.concatenate_int_data(INT_DATA_PATH)
-master_comb_df.to_csv(RESULTS_FILEPATH + "DES_MATCH_BAND" + str(BAND) + ".csv")
+master_comb_df = match.concatenate_int_data(INT_DATA_PATH_BAND)
+master_comb_df.to_csv(RESULTS_FILEPATH_BAND + "DES_MATCH_BAND" + str(BAND) + ".csv")
 print("Concatenated Master DF.")
 
 # Plot matching tests and results
-match.sanity_separation_test(master_comb_df, fold = PLOT_FILEPATH, BAND = BAND)
-match.plot_match_completeness(master_comb_df, fold = PLOT_FILEPATH, BAND = BAND)
-match.galaxy_ratio_plot(master_comb_df, fold = PLOT_FILEPATH, BAND = BAND)
+match.sanity_separation_test(master_comb_df, fold = RESULTS_FILEPATH_BAND, BAND = BAND)
+match.plot_match_completeness(master_comb_df, fold = RESULTS_FILEPATH_BAND, BAND = BAND)
+match.galaxy_ratio_plot(master_comb_df, fold = RESULTS_FILEPATH_BAND, BAND = BAND)
 print("Plotting Complete.")
 

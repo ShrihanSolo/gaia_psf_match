@@ -278,9 +278,10 @@ def plot_match_completeness(master_comb_df, fold, BAND, bounds = [15, 21]):
     plt.hist(master_comb_df["mag0"][match_idx][master_comb_df[match_idx]["in_galaxy_candidates"] == True], bins = np.linspace(bounds[0], bounds[1], 40), label = "Matched Gaia Galaxy Candidates",color = "green")
     plt.hist(master_comb_df["mag0"][match_idx][master_comb_df[match_idx]["non_single_star"] > 0], bins = np.linspace(bounds[0], bounds[1], 40), label = "Non-Single Star > 0",color = "grey")
     plt.title(f"DES Subsample of {len(master_comb_df)} Stars: Gaia Match Completeness")
-    plt.xlabel("Z-band Magnitude")
+    plt.xlabel(f"{BAND}-band Magnitude")
     plt.ylabel("Number of Stars")
     plt.legend(fontsize = "x-small")
+    plt.savefig(fold + f"/match_completeness_all_{BAND}_DES.png", dpi = 300)
     return
     
 def concatenate_int_data(fold):
@@ -315,7 +316,7 @@ def galaxy_ratio_plot(master_comb_df, fold, BAND, bounds = [15, 21], w = 0.1):
     plt.bar(mid(failed_star_galaxy_cut[1]), failed_star_galaxy_cut[0] / all_match[0], label = "Fraction Matched Failing Star-Galaxy Cut",color = "orange", width=0.14)
     plt.bar(mid(galaxy_match[1]), galaxy_match[0] / all_match[0], label = "Fraction Matched Gaia Galaxy Candidates",color = "green", width=0.14)
     plt.title("Ratio of Non-Star Matches to All Gaia Matched Objects")
-    plt.xlabel("Z-Band Magnitude")
+    plt.xlabel(f"{BAND}-Band Magnitude")
     plt.ylabel("Fraction of DESY3 Stars")
     plt.legend()
     plt.savefig(fold + f"/galaxy_ratio_matched_{BAND}_DES.png", dpi = 300)
@@ -325,7 +326,7 @@ def galaxy_ratio_plot(master_comb_df, fold, BAND, bounds = [15, 21], w = 0.1):
     plt.bar(mid(galaxy_match[1]), galaxy_match[0] / all_match[0], label = "Fraction Matched Gaia Galaxy Candidates",color = "green", width=0.14)
     plt.title("Ratio of Gaia Non-Star Matches to All PSF Stars")
     plt.legend()
-    plt.xlabel("Z-Band Magnitude")
+    plt.xlabel(f"{BAND}-Band Magnitude")
     plt.ylabel("Fraction of DESY3 Stars")
     plt.savefig(fold + f"/galaxy_ratio_all_{BAND}_DES.png", dpi = 300)
     return 
