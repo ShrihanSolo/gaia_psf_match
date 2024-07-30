@@ -14,5 +14,4 @@
 source ~/.bash_profile
 cd /home/shrihan/weaklens/gaia_match_psf/gaia_match_psf_code/src
 conda activate weaklens2
-python cluster_hscy3.py
 python gaiamatch_hscy3_i.py

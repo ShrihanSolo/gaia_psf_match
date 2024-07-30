@@ -17,7 +17,7 @@ BAND = 'i'
 PSF_DATA_FILEPATH = "../../psf_data/hscy3_allfields.h5"
 RESULTS_FILEPATH = "../results/"
 CLUSTER_SUBSAMPLE_SIZE = 10000
-NUMBER_OF_CLUSTERS = 10
+NUMBER_OF_CLUSTERS = 20
 INT_DATA_PATH = "../../int_data/"
 
 def read_hscy3_h5(file_path, n = int(1e6)):

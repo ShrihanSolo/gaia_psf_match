@@ -68,7 +68,7 @@ match.plot_cluster_test(ra_dec, centroids, cluster_num_array, fold = RESULTS_FIL
 
 # Query Gaia for each cluster
 # for cluster_num in range(centroids.shape[0]):
-for cluster_num in [88, 166]:
+for cluster_num in range(centroids.shape[0]):
     clust0_info = cluster_info.loc[cluster_num]
     print("R = {:.3f}".format(clust0_info["max_dist"]), end = ' | ')
     gaia0_tab = match.query_gaia_for_cluster(clust0_info["centroids"][0], 

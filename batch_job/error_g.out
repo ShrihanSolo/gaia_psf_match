@@ -1,4 +1,18 @@
 Traceback (most recent call last):
+  File "/home/shrihan/weaklens/gaia_match_psf/gaia_match_psf_code/src/query_hscy3.py", line 51, in <module>
+    des.to_csv(INT_DATA_PATH + "hscy3/" + "hscy3_" + str(BAND) + ".csv")
+  File "/scratch/midway3/shrihan/ana/.conda/envs/weaklens2/lib/python3.10/site-packages/pandas/core/generic.py", line 3902, in to_csv
+    return DataFrameRenderer(formatter).to_csv(
+  File "/scratch/midway3/shrihan/ana/.conda/envs/weaklens2/lib/python3.10/site-packages/pandas/io/formats/format.py", line 1152, in to_csv
+    csv_formatter.save()
+  File "/scratch/midway3/shrihan/ana/.conda/envs/weaklens2/lib/python3.10/site-packages/pandas/io/formats/csvs.py", line 247, in save
+    with get_handle(
+  File "/scratch/midway3/shrihan/ana/.conda/envs/weaklens2/lib/python3.10/site-packages/pandas/io/common.py", line 739, in get_handle
+    check_parent_directory(str(handle))
+  File "/scratch/midway3/shrihan/ana/.conda/envs/weaklens2/lib/python3.10/site-packages/pandas/io/common.py", line 604, in check_parent_directory
+    raise OSError(rf"Cannot save file into a non-existent directory: '{parent}'")
+OSError: Cannot save file into a non-existent directory: '../../int_data/hscy3'
+Traceback (most recent call last):
   File "/home/shrihan/weaklens/gaia_match_psf/gaia_match_psf_code/src/gaiamatch_hscy3_i.py", line 62, in <module>
     gaia0_tab = pd.read_feather(INT_DATA_PATH + "gaia_hscy3/" + "gaia_hscy3_" + str(i) + ".feather")
   File "/scratch/midway3/shrihan/ana/.conda/envs/weaklens2/lib/python3.10/site-packages/pandas/io/feather_format.py", line 122, in read_feather
