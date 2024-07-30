@@ -1,6 +1,8 @@
 Traceback (most recent call last):
-  File "/home/shrihan/weaklens/gaia_match_psf/gaia_match_psf_code/src/gaiamatch_hscy3_i.py", line 48, in <module>
-    des = read_hscy3_h5(PSF_DATA_FILEPATH, n = TOTAL_SUBSAMPLE_SIZE)
-  File "/home/shrihan/weaklens/gaia_match_psf/gaia_match_psf_code/src/gaiamatch_hscy3_i.py", line 30, in read_hscy3_h5
-    with h5.File(file_path, 'r') as f:
-NameError: name 'h5' is not defined
+  File "/home/shrihan/weaklens/gaia_match_psf/gaia_match_psf_code/src/gaiamatch_hscy3_i.py", line 62, in <module>
+    gaia0_tab = pd.read_feather(INT_DATA_PATH + "gaia_hscy3/" + "gaia_hscy3_" + str(i) + ".feather")
+  File "/scratch/midway3/shrihan/ana/.conda/envs/weaklens2/lib/python3.10/site-packages/pandas/io/feather_format.py", line 122, in read_feather
+    with get_handle(
+  File "/scratch/midway3/shrihan/ana/.conda/envs/weaklens2/lib/python3.10/site-packages/pandas/io/common.py", line 872, in get_handle
+    handle = open(handle, ioargs.mode)
+FileNotFoundError: [Errno 2] No such file or directory: '../../int_data/gaia_hscy3/gaia_hscy3_0.feather'
