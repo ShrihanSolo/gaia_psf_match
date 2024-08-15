@@ -59,7 +59,7 @@ print("DES Stars Assigned.")
 # Match Gaia for stars in the clusters 
 for i in range(centroids.shape[0]):
     print("Cluster " + str(i) + ":", end = ' ')
-    gaia0_tab = pd.read_feather(INT_DATA_PATH + "gaia_hscy3/" + "gaia_hscy3_" + str(i) + ".feather")
+    gaia0_tab = pd.read_feather(INT_DATA_PATH + "gaia_hscy3/" + "gaia" + str(i) + ".feather")
     comb_clusteri = match.match_cluster_to_gaia(gaia0_tab, des, cluster_num_array, cluster_info, i)
     print("Matched.")
     comb_clusteri.to_csv(INT_DATA_PATH + str(BAND) + "data_hscy3/" + "cluster_" + str(BAND) + "_" + str(i) + ".csv")
@@ -67,7 +67,7 @@ for i in range(centroids.shape[0]):
 
 # Concatenate all the clusters
 master_comb_df = match.concatenate_int_data(INT_DATA_PATH_BAND)
-master_comb_df.to_csv(RESULTS_FILEPATH_BAND + "DES_MATCH_BAND" + str(BAND) + ".csv")
+master_comb_df.to_csv(RESULTS_FILEPATH_BAND + "HSCY3_MATCH_BAND" + str(BAND) + ".csv")
 print("Concatenated Master DF.")
 
 # Plot matching tests and results
