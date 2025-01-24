@@ -3,3 +3,4 @@
 *.csv
 test_notes/gaia_coords_of_des.xml
 test_notes/gaia_server_des_match.vot
+test_notes/*.cat
